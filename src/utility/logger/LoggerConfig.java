@@ -12,7 +12,7 @@ public class LoggerConfig {
   private boolean showTimeStamp = false;
   private DateTimeFormatter dateTimeFormat =
     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-  private boolean showLogLevel = true;
+  private boolean showLogLevel = false;
   private String prefix = "";
 
   LogSink getSink(){
@@ -36,7 +36,7 @@ public class LoggerConfig {
   }
 
   String getPrefix(){
-    return this.prefix.trim();
+    return this.prefix;
   }
 
   private void setSink(LogSink newSink){
@@ -100,7 +100,7 @@ public class LoggerConfig {
 
 
   //TODO: temp for testing
-//  public void closeSink(){
-//    this.sink.close();
-//  }
+  public void closeSink(){
+    this.sink.close();
+  }
 }

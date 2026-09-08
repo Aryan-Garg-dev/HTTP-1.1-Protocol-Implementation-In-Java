@@ -67,8 +67,8 @@ public class Logger {
     if (instanceConfig.canShowCaller()) {
       sb.append('[').append(resolveCaller()).append("] ");
     }
-    if (!instanceConfig.getPrefix().isBlank()){
-      sb.append(instanceConfig.getPrefix()).append(" ");
+    if (!instanceConfig.getPrefix().isEmpty()){
+      sb.append(instanceConfig.getPrefix());
     }
     return sb.toString();
   }
