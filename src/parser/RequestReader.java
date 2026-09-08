@@ -1,6 +1,7 @@
+package parser;
+
 import utility.Bytes;
 import utility.logger.Logger;
-
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.regex.Pattern;

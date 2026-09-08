@@ -1,3 +1,5 @@
+package parser;
+
 import java.io.InputStream;
 
 public class ChunkReader extends InputStream {

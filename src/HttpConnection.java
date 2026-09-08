@@ -1,3 +1,5 @@
+import parser.Request;
+import parser.RequestReader;
 import utility.logger.Logger;
 
 import java.io.Closeable;

@@ -1,3 +1,5 @@
+package parser;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +28,7 @@ public class Request {
 
   @Override
   public String toString() {
-    return "Request{" +
+    return "parser.Request{" +
       "requestLine=" + requestLine +
       ", headers=" + headers +
       ", body=" + body +
