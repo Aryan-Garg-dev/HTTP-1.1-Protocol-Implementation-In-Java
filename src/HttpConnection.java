@@ -28,9 +28,14 @@ public class HttpConnection implements Runnable, Closeable {
       while (true){
         Request request = requestReader.readRequest();
         if (request == null) break;
+        boolean keepAlive = request.keepAlive();
+
         Response response = handler.handle(request);
+        if (!keepAlive) response.header("Connection", "close");
+
         response.writeTo(out);
-        // keep-alive check
+
+        if (!keepAlive) break;
       }
     } catch (InterruptedException e){
       Thread.currentThread().interrupt();

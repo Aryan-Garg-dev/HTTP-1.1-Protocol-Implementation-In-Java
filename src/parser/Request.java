@@ -26,6 +26,11 @@ public class Request {
     return body;
   }
 
+  public boolean keepAlive(){
+    String connection = headers.get("connection");
+    return connection == null || !connection.equalsIgnoreCase("close");
+  }
+
   @Override
   public String toString() {
     return "parser.Request{" +
