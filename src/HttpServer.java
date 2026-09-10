@@ -21,6 +21,7 @@ public class HttpServer implements Closeable {
   }
 
   public void listen() throws IOException {
+    Logger.info().print("Server is listening on PORT: ").println(port);
     serverSocket = new ServerSocket(port);
     running = true;
 
@@ -48,7 +49,12 @@ public class HttpServer implements Closeable {
 
   public static void main(String[] args) {
     try(
-      HttpServer server = new HttpServer(42069, (request) -> new Response());
+      HttpServer server = new HttpServer(42069, (request) -> {
+        Logger.info().println(request);
+        return new Response(Status.OK)
+          .header("Content-Type", "text/plain")
+          .text("Hello World");
+      });
     ){
 
       Runtime.getRuntime().addShutdownHook(

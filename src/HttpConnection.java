@@ -32,6 +32,9 @@ public class HttpConnection implements Runnable, Closeable {
         response.writeTo(out);
         // keep-alive check
       }
+    } catch (InterruptedException e){
+      Thread.currentThread().interrupt();
+      Logger.error().println(e);
     } catch (Exception e){
       Logger.error().println(e);
     }
