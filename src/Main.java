@@ -1,74 +1,78 @@
-import utility.Evaluators;
 import utility.logger.Logger;
-import utility.logger.LoggerConfig;
-import utility.logger.logsink.LogStreams;
+
 
 public class Main {
   static {
     Logger.config
+      .useAsyncConsole()
       .withTimeStamp(true)
-      .withPrefix("[TESTING]")
       .withCaller(true)
       .withLogLevel(true);
   }
+
   public static void main(String[] args) {
-    int WARM_UP = 1000;
-    int TEST = 50_000;
+    try(
+      HttpServer server = new HttpServer(42069, (request) -> {
+        Logger.info().println(request);
 
-    Logger.config.useConsole();
-    for (int i = 0; i < WARM_UP; i++) Logger.info().println("Sync Log WARM-UP");
+        String target = request.getRequestLine().requestTarget();
 
-    Logger.config.useAsyncConsole();
-    for (int i = 0; i < WARM_UP; i++) Logger.info().println("Async Log WARM-UP");
-    Logger.config.closeSink();
+        if (target.equals("/")){
+          return new Response(Status.OK)
+            .html("""
+              <html>
+                <head>
+                  <title>HTTP/1.1</title>
+                  <meta charset="UTF-8" />
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+                  <link rel="preconnect" href="https://fonts.googleapis.com">
+                  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+                </head>
+                <style>
+                  .font-outfit {
+                    font-family: "Outfit", sans-serif;
+                    font-optical-sizing: auto;
+                    font-style: normal;
+                  }
+                  .font-sans {
+                    font-family: "Josefin Sans", sans-serif;
+                    font-optical-sizing: auto;
+                    font-style: normal;
+                  }
+                </style>
+                <body class="w-full h-full min-h-screen flex flex-col justify-center items-center font-sans bg-neutral-900 text-neutral-200">
+                  <h1 class="text-3xl font-bold">HTTP/1.1 Implementation in Java using TCP Sockets</h1>
+                </body>
+              </html>
+              """);
+        }
 
-    Logger.config.useFile("sync-logs.txt");
-    for (int i = 0; i < WARM_UP; i++) Logger.info().println("async Log WARM-UP");
+        String text;
+        Status status = Status.OK;
 
-    Logger.config.useFile("async-logs.txt");
-    for (int i = 0; i < WARM_UP; i++) Logger.info().println("Async Log WARM-UP");
-    Logger.config.closeSink();
+        if (target.endsWith("ping")) text = "pong";
+        else if (target.endsWith("health")) text = "healthy";
+        else {
+          status = Status.NOT_FOUND;
+          text = status.reason();
+        }
 
+        return new Response(status)
+          .header("Content-Type", "text/plain")
+          .text(text);
+      });
+    ){
 
-    Logger.config.useConsole();
-    long syncTimeElapsed = Evaluators.time(() -> {
-      for (int i = 0; i < TEST; i++) Logger.info().println("Sync Log TEST");
-    });
+      Runtime.getRuntime().addShutdownHook(
+        new Thread(server::close)
+      );
 
-    Logger.config.useAsyncConsole();
-    long asyncFullTimeElapsed = Evaluators.time(() -> {
-      for (int i = 0; i < TEST; i++) Logger.info().println("Async Log TEST");
-      Logger.config.closeSink();
-    });
+      server.listen();
 
-    Logger.config.useAsyncConsole();
-    long asyncTimeElapsed = Evaluators.time(() -> {
-      for (int i = 0; i < TEST; i++) Logger.info().println("Async Log TEST");
-    });
-    Logger.config.closeSink();
-
-    Logger.config.useFile("sync-logs.txt");
-    long syncFileTimeElapsed = Evaluators.time(() -> {
-      for (int i = 0; i < TEST; i++) Logger.info().println("async Log TEST");
-    });
-
-    Logger.config.useAsyncFile("async-logs.txt");
-    long asyncFileFullTimeElapsed = Evaluators.time(() -> {
-      for (int i = 0; i < TEST; i++) Logger.info().println("Async Log TEST");
-      Logger.config.closeSink();
-    });
-
-    Logger.config.useAsyncFile("async-logs.txt");
-    long asyncFileTimeElapsed = Evaluators.time(() -> {
-      for (int i = 0; i < TEST; i++) Logger.info().println("Async Log TEST");
-    });
-    Logger.config.closeSink();
-
-    Evaluators.report("SYNC Console", syncTimeElapsed, TEST);
-    Evaluators.report("ASYNC Console", asyncTimeElapsed, TEST);
-    Evaluators.report("ASYNC Full Console", asyncFullTimeElapsed, TEST);
-    Evaluators.report("SYNC-FILE Console", syncFileTimeElapsed, TEST);
-    Evaluators.report("ASYNC-FILE Console", asyncFileTimeElapsed, TEST);
-    Evaluators.report("ASYNC-FILE Full Console", asyncFileFullTimeElapsed, TEST);
+    } catch (Exception e){
+      Logger.error().print(e);
+    }
   }
 }
