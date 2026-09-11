@@ -34,6 +34,13 @@ public class Response {
     return this;
   }
 
+  public Response html(String html){
+    this.headers.put("Content-Type", "text/html");
+    this.headers.put("charset", "utf-8");
+    this.body = html.getBytes(StandardCharsets.UTF_8);
+    return this;
+  }
+
   @Override
   public String toString() {
     return "Response{" +

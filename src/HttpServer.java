@@ -56,9 +56,7 @@ public class HttpServer implements Closeable {
 
         if (target.equals("/")){
           return new Response(Status.OK)
-            .header("Content-Type", "text/html")
-            .header("charset", "utf-8")
-            .text("""
+            .html("""
               <html>
                 <head>
                   <title>HTTP/1.1</title>
